@@ -12,6 +12,7 @@ def compose(project_id: str, settings: dict | None = None):
         raise HTTPException(404, 'project not found')
 
 @router.post('/{project_id}/export')
+@router.get('/{project_id}/export')
 def export(project_id: str):
     try:
         path = export_project_zip(project_id)
