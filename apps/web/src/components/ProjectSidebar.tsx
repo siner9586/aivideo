@@ -1,0 +1,5 @@
+import {useEffect,useState} from 'react';
+import {projectApi,type Project} from '../lib/projectApi';
+
+type Props={current?:Project|null;onSelect:(p:Project)=>void;onCreate:(p:Project)=>void};
+export function ProjectSidebar({current,onSelect,onCreate}:Props){const[items,setItems]=useState<Project[]>([]);const[title,setTitle]=useState('Beta Demo Project');const[err,setErr]=useState('');async function load(){try{setItems(await projectApi.list())}catch(e:any){setErr(e.message)}}useEffect(()=>{load()},[]);async function create(){try{const p=await projectApi.create({title,description:'AI Video Studio beta workspace'});setItems([p,...items]);onCreate(p)}catch(e:any){setErr(e.message)}}return <div className="panel"><h3>项目</h3><div className="row"><input value={title} onChange={e=>setTitle(e.target.value)} /><button className="btn mini" onClick={create}>新建</button></div>{err&&<p className="error">{err}</p>}<div className="list">{items.map(p=><button key={p.project_id} className={current?.project_id===p.project_id?'listItem active':'listItem'} onClick={()=>onSelect(p)}><b>{p.title}</b><span>{p.shots?.length||0} shots</span></button>)}</div></div>}
