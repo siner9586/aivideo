@@ -1,0 +1,4 @@
+const API = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+async function json<T>(path:string, init?:RequestInit):Promise<T>{ const r=await fetch(`${API}${path}`,{headers:{'Content-Type':'application/json',...(init?.headers||{})},...init}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+export type QueueTask={task_id:string;project_id?:string;shot_id?:string;backend:string;status:string;progress:number;input_prompt:string;output_video_path?:string;error_message?:string};
+export const queueApi={submit:(p:any)=>json<QueueTask>('/api/queue/submit',{method:'POST',body:JSON.stringify(p)}),list:()=>json<QueueTask[]>('/api/queue/tasks'),cancel:(id:string)=>json<QueueTask>(`/api/queue/tasks/${id}/cancel`,{method:'POST'}),retry:(id:string)=>json<QueueTask>(`/api/queue/tasks/${id}/retry`,{method:'POST'})};
