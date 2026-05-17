@@ -1,0 +1,9 @@
+{
+  "title": "Tea House Cinematic Demo",
+  "original_prompt": "Night Chinese traditional tea house, warm golden light, slow push-in camera, people sitting around a carved tea table, cinematic realistic style.",
+  "parsed_spec": {"style": "cinematic realistic", "scene": "traditional tea house", "duration": 8, "aspect_ratio": "16:9"},
+  "storyboard": {"title": "Tea House Storyboard", "total_duration": 8, "shots": [{"shot_id": 1, "duration": 3, "visual_prompt": "Exterior lantern and carved wooden entrance", "action_prompt": "camera slowly enters the tea house", "camera_motion": "slow_push_in"}, {"shot_id": 2, "duration": 3, "visual_prompt": "Warm interior with tea steam and wood screen", "action_prompt": "characters sit calmly around the tea table", "camera_motion": "pan_right"}, {"shot_id": 3, "duration": 2, "visual_prompt": "Close-up of tea cup, fruit and warm reflections", "action_prompt": "steam rises gently", "camera_motion": "close_up"}]},
+  "shots": [],
+  "suggested_backend": "mock",
+  "postprocess_settings": {"fps": 12, "aspect_ratio": "16:9", "add_intro": true, "add_outro": true}
+}
