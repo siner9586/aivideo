@@ -1,58 +1,46 @@
 # AI Video Studio
 
-AI Video Studio 是一个开源 AI 视频制作平台 MVP。它不是 Seedance、即梦、Runway、Kling 等闭源商业模型的复刻，而是以 FastAPI + React + 可替换 VideoBackend 为核心，把 prompt 解析、自动分镜、mock 文生视频、mock 图生视频、后处理、偏好评分、安全审查与真实模型后端接口封装成可运行、可扩展、可本地部署的工程骨架。
+AI Video Studio 是一个开源 AI 视频制作平台。Phase 1 已完成 FastAPI + React + mock backend 的基础闭环；Phase 2 将其升级为 Beta 工作台，加入项目化创作、任务队列、时间线分镜编辑、ComfyUI / Diffusers / 外部后端接口、素材库、视频合成、质量评估与部署文档。
 
-## 功能清单
+它不是 Seedance、即梦、Runway、Kling 等闭源商业模型的复刻，也不包含任何大模型权重；它是一个可扩展工程框架，用于把 prompt 解析、分镜规划、视频生成后端、后处理与项目管理串成完整产品流程。
 
-- Prompt-to-Video 语义解析：中文/英文规则解析，输出结构化 JSON。
-- Multi-shot Storytelling：自动生成 1-8 个镜头的分镜脚本。
-- Text-to-Video：统一后端接口，默认 mock 可在 CPU 运行。
-- Image-to-Video：参考图动画，支持 zoom/pan/tilt 等 mock 运镜。
-- Keyframe Control：首尾帧校验与 mock 插值。
-- Camera Motion：自然语言运镜解析与 OpenCV transform 参数。
-- Temporal Consistency：帧差、闪烁、跳变与平滑分析。
-- Character Consistency：角色卡与安全 prompt 注入，不做换脸克隆。
-- Preference Scoring：多维评分框架，预留 Video RLHF 数据闭环。
-- Inference Acceleration：CPU/CUDA/MPS 检测与 diffusers 优化开关。
-- Post-production：resize、fps、字幕、多镜头合成、项目打包。
-- Safety Guard：输入、角色和任务安全审查。
+## Phase 2 Beta 核心功能
 
-## 技术架构图
+- 保留 Phase 1 mock 文生视频 / 图生视频闭环，默认仍可 CPU 运行。
+- 新增轻量任务队列：内存队列 + `data/tasks/tasks.jsonl` 持久化。
+- 新增项目系统：`data/projects/{project_id}/project.json` 保存完整视频项目。
+- 新增前端 Beta 工作台：项目侧栏、模板库、素材库、时间线、队列、合成、质量面板。
+- 新增 BackendRegistry：统一注册 `mock`、`comfyui`、`diffusers_t2v`、`diffusers_i2v`、`external`、`wan`、`cogvideox`、`hunyuan`、`ltx`。
+- 增强 ComfyUI workflow 调用接口，支持 prompt / image 注入、提交、轮询、输出下载与 mock fallback。
+- 增强 Diffusers 接口，支持环境变量配置和无模型 fallback。
+- 新增 prompt 模板库与示例 prompt JSON。
+- 新增素材库：图片、视频、音频上传与项目/镜头绑定。
+- 新增视频合成：shot mp4 规范化、拼接、片头、片尾、项目 zip 导出。
+- 新增质量评估：清晰度、亮度、帧间稳定性、时长匹配、安全分等启发式评分。
+- 新增字幕与背景音乐接口占位。
+
+## 技术架构
 
 ```mermaid
 flowchart LR
-  U[User Prompt / Image] --> W[React Workbench]
+  U[User Prompt / Assets] --> W[React Beta Workspace]
   W --> API[FastAPI API]
   API --> SG[Safety Guard]
   API --> PP[Prompt Parser]
   PP --> SB[Storyboard Planner]
-  SB --> GEN[Generation Orchestrator]
-  GEN --> B{VideoBackend}
-  B --> M[Mock OpenCV Backend]
-  B --> D[Diffusers Backend]
-  B --> C[ComfyUI Backend]
-  B --> E[External API Backend]
-  GEN --> POST[Post Processing]
-  POST --> OUT[MP4 in data/outputs]
-  OUT --> WEB[Preview / Download]
-  OUT --> SCORE[Preference Scoring]
+  SB --> PRJ[Project Manager]
+  PRJ --> TL[Timeline / Shot Editor]
+  TL --> Q[Task Queue]
+  Q --> BR{Backend Registry}
+  BR --> M[Mock Backend]
+  BR --> C[ComfyUI]
+  BR --> D[Diffusers]
+  BR --> E[External / Wan / CogVideoX / Hunyuan / LTX]
+  Q --> OUT[Shot MP4]
+  OUT --> CMP[Composer]
+  CMP --> FINAL[Final MP4 / ZIP]
+  FINAL --> QA[Quality Panel]
 ```
-
-## 核心 skill 对照表
-
-| Skill | 模块文件 | 当前实现 | 后续扩展 |
-|---|---|---|---|
-| Prompt-to-Video 语义解析 | prompt_parser.py | 规则解析 + 结构化 JSON | LLM parser |
-| Text-to-Video | text_to_video.py | mock + diffusers 接口 | Wan/Hunyuan/CogVideoX |
-| Image-to-Video | image_to_video.py | OpenCV 动画 + 接口 | I2V 模型 |
-| Temporal Consistency | temporal_consistency.py | 帧差分析 | 光流/深度一致性 |
-| Character Consistency | character_consistency.py | 角色卡 + prompt 注入 | reference encoder |
-| Camera Motion | camera_motion.py | 运镜词解析 | camera trajectory control |
-| Keyframe Control | keyframe_control.py | 首尾帧校验/插值 | native keyframe model |
-| Multi-shot Storytelling | storyboard_planner.py | 自动分镜 | LLM storyboard agent |
-| Video RLHF | preference_scoring.py | 多维评分框架 | reward model |
-| Inference Acceleration | inference_acceleration.py | 设备检测/配置推荐 | distillation/quantization |
-| Post-production | post_processing.py | ffmpeg/moviepy/OpenCV | 超分/补帧/音频 |
 
 ## 快速开始
 
@@ -66,84 +54,195 @@ make api
 make web
 ```
 
-访问：`http://localhost:3000`。API 文档：`http://localhost:8000/docs`。
+访问：
 
-## 本地运行
+- 前端：`http://localhost:3000`
+- API 文档：`http://localhost:8000/docs`
 
-后端：
+手动运行：
 
 ```bash
 PYTHONPATH=services/api uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-前端：
-
-```bash
 cd apps/web
 npm install
 npm run dev
 ```
 
-## Docker 运行
+## 当前支持的后端
+
+| 后端 | 状态 | 说明 |
+|---|---|---|
+| `mock` | 默认可用 | CPU-only，生成演示 mp4 |
+| `comfyui` | 接口可用 | 需本地 ComfyUI 与 workflow JSON |
+| `diffusers_t2v` | 接口可用 | 需配置模型路径；默认 fallback |
+| `diffusers_i2v` | 接口可用 | 需配置模型路径；默认 fallback |
+| `external` | 骨架 | 用于商业或远程推理接口 |
+| `wan` | 骨架 | 需用户自行配置模型路径 |
+| `cogvideox` | 骨架 | 需用户自行配置模型路径 |
+| `hunyuan` | 骨架 | 需用户自行配置模型路径 |
+| `ltx` | 骨架 | 需用户自行配置模型路径 |
+
+## 使用 mock backend
+
+`.env` 或环境变量：
 
 ```bash
-docker compose up --build
+VIDEO_BACKEND=mock
 ```
 
-## API 示例
+API 示例：
 
 ```bash
-curl -X POST http://localhost:8000/api/parse \
-  -H 'Content-Type: application/json' \
-  -d '{"prompt":"生成一段 8 秒电影级写实风格视频：夜晚的中国传统茶楼，暖金色光线，镜头缓慢推进"}'
-
 curl -X POST http://localhost:8000/api/generate/text-to-video \
   -H 'Content-Type: application/json' \
   -d '{"prompt":"生成 5 秒茶楼视频","backend":"mock","duration":5,"fps":12,"aspect_ratio":"16:9","resolution":"480p","camera_motion":"slow_push_in"}'
 ```
 
-生成文件统一保存到 `data/outputs`。本次本地测试已生成示例：`data/outputs/*.mp4`。
+## 创建项目与生成镜头
 
-## 前端使用说明
+1. 打开前端 Beta 工作台。
+2. 左侧点击“新建项目”。
+3. 中间输入 prompt，点击“解析与生成分镜”。
+4. 点击“写入项目时间线”。
+5. 编辑每个 ShotCard 的 prompt、时长、运镜和后端。
+6. 点击“生成单个镜头”。
+7. 右侧 QueuePanel 查看状态。
+8. 完成后点击 ComposerPanel 的“合成完整视频”。
 
-左侧输入 prompt、时长、画幅、分辨率、后端、运镜和负面提示词；中间查看语义解析 JSON 与自动分镜；右侧查看任务状态、视频预览、下载链接和后处理按钮。第一版图生视频上传接口已提供，UI 可继续接入 `/api/upload` 与 `/api/generate/image-to-video`。
+对应 API：
 
-## 如何接入真实视频生成模型
-
-不要在代码中硬编码模型权重。使用 `.env`：
-
-```bash
-MODEL_BACKEND=diffusers
-MODEL_PATH=/models/CogVideoX-or-Wan-or-HunyuanVideo
+```http
+POST /api/projects
+GET /api/projects
+POST /api/projects/{project_id}/shots
+POST /api/queue/submit
+GET /api/queue/tasks
+POST /api/composer/{project_id}/compose
+POST /api/quality/evaluate
 ```
 
-然后在 `services/api/app/backends/diffusers_t2v_backend.py` 或 `diffusers_i2v_backend.py` 中加载相应 pipeline。建议先用 `mock` 跑通全链路，再接入 AnimateDiff、CogVideoX、HunyuanVideo、Wan2.1/Wan2.2、LTX-Video/LTX-2 或 ComfyUI workflow。
+## 接入 ComfyUI
+
+```bash
+VIDEO_BACKEND=comfyui
+COMFYUI_BASE_URL=http://127.0.0.1:8188
+COMFYUI_WORKFLOW_PATH=examples/workflows/comfyui_text_to_video_example.json
+```
+
+说明文档：`docs/comfyui_integration.md`。
+
+## 接入 Diffusers
+
+```bash
+VIDEO_BACKEND=diffusers_t2v
+DIFFUSERS_MODEL_PATH=/models/your-video-model
+DIFFUSERS_DEVICE=auto
+ENABLE_CPU_OFFLOAD=true
+ENABLE_ATTENTION_SLICING=true
+ENABLE_VAE_TILING=true
+```
+
+说明文档：`docs/diffusers_integration.md` 与 `docs/real_model_setup.md`。
+
+## 视频合成与导出
+
+合成项目：
+
+```bash
+curl -X POST http://localhost:8000/api/composer/{project_id}/compose \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"AI Video Studio","ending_text":"Created with AI Video Studio"}'
+```
+
+导出项目包：
+
+```bash
+curl -L http://localhost:8000/api/composer/{project_id}/export -o project.zip
+```
+
+## 素材库
+
+支持格式：
+
+- 图片：jpg、jpeg、png、webp
+- 视频：mp4、mov、webm
+- 音频：mp3、wav、m4a
+
+API：
+
+```http
+POST /api/assets/upload
+GET /api/assets
+GET /api/assets/{asset_id}
+DELETE /api/assets/{asset_id}
+POST /api/projects/{project_id}/assets/{asset_id}
+POST /api/projects/{project_id}/shots/{shot_id}/assets/{asset_id}
+```
+
+## 部署
+
+详见 `docs/deployment_netlify_backend.md`。
+
+支持：
+
+1. 本地开发：FastAPI + Vite。
+2. Netlify 前端：设置 `VITE_API_BASE_URL`。
+3. 云服务器后端：持久化挂载 `data/`。
+4. GPU 服务器：配置 ComfyUI / Diffusers。
+5. 纯演示模式：只用 mock backend。
+
+## 测试
+
+```bash
+PYTHONPATH=services/api pytest services/api/tests
+cd apps/web
+npm install
+npm run build
+```
+
+如果视频合成相关测试失败，通常是 OpenCV/ffmpeg 环境问题。建议安装：
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu
+sudo apt-get update && sudo apt-get install -y ffmpeg
+```
+
+## 重要目录
+
+```text
+services/api/app/queue/          # 任务队列
+services/api/app/projects/       # 项目管理
+services/api/app/backends/       # 后端注册与模型接口
+services/api/app/skills/         # 模板、素材、合成、质量、字幕、音乐
+services/api/app/routes/         # Beta API routes
+apps/web/src/components/         # Beta 工作台组件
+apps/web/src/lib/                # 前端 API 客户端
+docs/                            # 集成与部署文档
+examples/                        # workflow、项目与 prompt 示例
+```
 
 ## 安全与合规声明
 
-本项目不得用于非自愿换脸、色情深伪、公众人物冒充、版权角色直接复刻、欺诈广告、政治误导、医疗金融虚假承诺或血腥极端内容。MVP 使用关键词与规则做基础安全审查；生产环境应接入更强的内容审核模型、人工复核和日志审计。
+本项目不得用于非自愿换脸、色情深伪、公众人物冒充、版权角色直接复刻、欺诈广告、政治误导、医疗金融虚假承诺或血腥极端内容。生产环境应增加更强的内容审核、人工复核和日志审计。
+
+不要提交：
+
+- 大模型权重
+- API Key / Token
+- `.env`
+- 私密素材
+- `node_modules`
+- `venv`
+- `data/outputs` 大视频
+- 临时缓存
 
 ## 路线图
 
-1. 完善图生视频前端上传与任务队列。
-2. 接入 ComfyUI workflow JSON。
-3. 增加真实 diffusers backend 示例。
-4. 增加多候选生成与排序。
-5. 增加字幕、音乐、封面和项目模板。
-6. 增加用户空间、项目保存和权限控制。
-
-## 常见问题
-
-**没有 GPU 能跑吗？** 可以。默认 `mock` 后端仅依赖 OpenCV，能生成演示 mp4。
-
-**这是商业视频大模型吗？** 不是。它是工程化平台 MVP，用于封装开源/远程后端。
-
-**会自动下载大模型吗？** 不会。真实模型通过 `MODEL_PATH` 或后端配置接入。
-
-## GitHub 推送说明
-
-```bash
-git add .
-git commit -m "Build AI video studio MVP with modular generation skills"
-git push origin main
-```
+- Phase 1：MVP 基础闭环
+- Phase 2：Beta 工作台与模型后端
+- Phase 3：真实模型深度集成与云端队列
+- Phase 4：微信小程序 / 空间视频 / 3DGS 扩展
+- Phase 5：商业化与多人协作
