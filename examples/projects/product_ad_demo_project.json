@@ -1,0 +1,9 @@
+{
+  "title": "Premium Product Ad Demo",
+  "original_prompt": "A premium smart device on a black studio background, metallic material, smooth orbit camera, commercial advertising style.",
+  "parsed_spec": {"style": "premium commercial", "scene": "black studio", "duration": 8, "aspect_ratio": "16:9"},
+  "storyboard": {"title": "Product Ad Storyboard", "total_duration": 8, "shots": [{"shot_id": 1, "duration": 2, "visual_prompt": "The product silhouette appears under a soft rim light", "action_prompt": "slow reveal from darkness", "camera_motion": "slow_push_in"}, {"shot_id": 2, "duration": 3, "visual_prompt": "Close-up of metallic edges and glass surface", "action_prompt": "light sweeps across product details", "camera_motion": "orbit"}, {"shot_id": 3, "duration": 3, "visual_prompt": "Product stands centered with feature icons around it", "action_prompt": "clean commercial end frame", "camera_motion": "static"}]},
+  "shots": [],
+  "suggested_backend": "mock",
+  "postprocess_settings": {"fps": 12, "aspect_ratio": "16:9", "add_intro": true, "add_outro": true}
+}
