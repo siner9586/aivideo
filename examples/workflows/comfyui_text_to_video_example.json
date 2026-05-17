@@ -1,0 +1,7 @@
+{
+  "_description": "Placeholder ComfyUI text-to-video workflow. Replace node ids, model loaders and video saver with your exported ComfyUI workflow. The backend will inject prompt strings into text/prompt fields.",
+  "1": {"class_type": "TextPrompt", "inputs": {"text": "AI_VIDEO_STUDIO_PROMPT_PLACEHOLDER"}},
+  "2": {"class_type": "VideoModelLoader", "inputs": {"model_name": "replace_with_your_model.safetensors"}},
+  "3": {"class_type": "Sampler", "inputs": {"positive": ["1", 0], "model": ["2", 0], "steps": 20, "seed": 42}},
+  "4": {"class_type": "VideoSave", "inputs": {"frames": ["3", 0], "filename_prefix": "aivideo_t2v"}}
+}
