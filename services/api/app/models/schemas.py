@@ -4,7 +4,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 RiskLevel = Literal['low','medium','high','blocked']
-BackendName = Literal['mock','diffusers','external','comfyui']
+BackendName = Literal['mock','diffusers','diffusers_t2v','diffusers_i2v','external','comfyui','wan','cogvideox','hunyuan','ltx']
 
 class SafetyReport(BaseModel):
     risk_level: RiskLevel = 'low'
