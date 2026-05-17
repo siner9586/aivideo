@@ -1,0 +1,4 @@
+const API = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+async function json<T>(path:string, init?:RequestInit):Promise<T>{ const r=await fetch(`${API}${path}`,{headers:{'Content-Type':'application/json',...(init?.headers||{})},...init}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+export type PromptTemplate={template_id:string;category:string;title:string;description:string;base_prompt:string;negative_prompt:string;suggested_duration:number;suggested_aspect_ratio:string;suggested_camera_motion:string;suggested_style:string};
+export const templateApi={list:()=>json<PromptTemplate[]>('/api/templates'),apply:(template_id:string,idea:string,extra='')=>json('/api/templates/apply',{method:'POST',body:JSON.stringify({template_id,idea,extra})})};
