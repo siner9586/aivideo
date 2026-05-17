@@ -1,0 +1,1 @@
+{"scripts":{"dev":"make dev","test":"make test"},"workspaces":["apps/web"]}

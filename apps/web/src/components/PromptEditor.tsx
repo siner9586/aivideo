@@ -1,0 +1,1 @@
+export function PromptEditor({prompt,setPrompt}:{prompt:string;setPrompt:(v:string)=>void}){return <><label>Prompt</label><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="生成一段 8 秒电影级写实风格视频：夜晚的中国传统茶楼..."/></>}
