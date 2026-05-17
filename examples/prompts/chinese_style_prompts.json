@@ -1,0 +1,4 @@
+[
+  {"title":"Traditional tea house","category":"chinese_style","prompt":"Original Chinese classical tea house interior, warm lanterns, carved wooden screen, tea steam, calm gathering mood, slow push-in camera.","negative_prompt":"low quality, watermark, unstable motion"},
+  {"title":"Classical courtyard night","category":"chinese_style","prompt":"Original classical courtyard at night, soft golden light, moonlit garden, silk curtains, balanced composition, cinematic realistic motion.","negative_prompt":"overcrowded frame, distorted architecture, flicker"}
+]
