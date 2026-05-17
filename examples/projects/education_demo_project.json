@@ -1,0 +1,9 @@
+{
+  "title": "Cell to Human Education Demo",
+  "original_prompt": "From cell to human body, a 3D educational visualization showing biological self-organization, clear and suitable for class presentation.",
+  "parsed_spec": {"style": "educational 3D visualization", "scene": "science explainer", "duration": 10, "aspect_ratio": "16:9"},
+  "storyboard": {"title": "Cell to Human Storyboard", "total_duration": 10, "shots": [{"shot_id": 1, "duration": 3, "visual_prompt": "A single abstract cell with membrane and internal components", "action_prompt": "cell components organize into a stable structure", "camera_motion": "slow_push_in"}, {"shot_id": 2, "duration": 4, "visual_prompt": "Cells multiply into tissue layers", "action_prompt": "layers fold and connect into organ-like forms", "camera_motion": "pan_right"}, {"shot_id": 3, "duration": 3, "visual_prompt": "A transparent human body silhouette made of organized systems", "action_prompt": "systems glow gently and labels appear", "camera_motion": "pull_back"}]},
+  "shots": [],
+  "suggested_backend": "mock",
+  "postprocess_settings": {"fps": 12, "aspect_ratio": "16:9", "add_intro": true, "add_outro": true}
+}
