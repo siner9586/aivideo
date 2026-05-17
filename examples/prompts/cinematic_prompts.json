@@ -1,0 +1,4 @@
+[
+  {"title":"Cinematic tea house","category":"cinematic","prompt":"Night traditional tea house, warm lantern light, carved wood, tea steam, slow push-in, cinematic realistic style.","negative_prompt":"low quality, flicker, watermark, distorted image"},
+  {"title":"Documentary opening","category":"cinematic","prompt":"A calm documentary opening with realistic environment, natural human motion, stable camera and soft side light.","negative_prompt":"overacting, shaky camera, low detail"}
+]
