@@ -1,0 +1,4 @@
+[
+  {"title":"Life science visualization","category":"education","prompt":"A layered 3D life science education video, abstract cells and systems, smooth transitions, clean labels and classroom-friendly visual clarity.","negative_prompt":"messy labels, low clarity, excessive effects"},
+  {"title":"Project roadmap visualization","category":"education","prompt":"A clean academic project roadmap, white background, structured nodes, restrained arrows, smooth camera transition and readable labels.","negative_prompt":"cluttered layout, glowing poster style, unreadable text"}
+]
