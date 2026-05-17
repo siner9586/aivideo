@@ -1,0 +1,4 @@
+[
+  {"title":"Premium device reveal","category":"product","prompt":"A premium smart device on a black studio background, metallic edges, glass reflection, soft rim light, smooth orbit camera, commercial advertising style.","negative_prompt":"dirty background, low detail, shaky camera, fake claims"},
+  {"title":"Lifestyle product demo","category":"product","prompt":"A clean product demo showing opening, detail close-up, usage scenario and final hero shot, realistic lighting and smooth motion.","negative_prompt":"overexposure, watermark, visual distortion"}
+]
