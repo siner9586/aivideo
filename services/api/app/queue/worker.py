@@ -22,6 +22,12 @@ class QueueWorker:
             req = TextToVideoRequest(prompt=task.input_prompt, backend=task.backend, duration=float(task.metadata.get('duration', 4)), fps=int(task.metadata.get('fps', 12)), aspect_ratio=task.metadata.get('aspect_ratio','16:9'), resolution=task.metadata.get('resolution','480p'), camera_motion=task.metadata.get('camera_motion','slow_push_in'))
             result = generate_text_to_video(req)
             self.queue.store.update_task(task_id, status='completed', progress=1.0, output_video_path=result.output_path, metadata={**task.metadata, 'result': result.model_dump()})
+            if task.project_id and task.shot_id:
+                try:
+                    from app.projects.project_manager import get_project_manager
+                    get_project_manager().update_shot(task.project_id, task.shot_id, {'status':'completed','output_video_path':result.output_path})
+                except Exception:
+                    pass
         except Exception as exc:
             self.queue.store.update_task(task_id, status='failed', progress=0.0, error_message=str(exc))
         return True
