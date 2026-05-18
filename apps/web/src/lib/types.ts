@@ -1,2 +1,2 @@
-export type Backend = 'mock'|'diffusers'|'external'|'comfyui';
-export interface GenerateRequest { prompt:string; backend:Backend; duration:number; fps:number; seed?:number; negative_prompt?:string; aspect_ratio:string; resolution:string; camera_motion?:string; }
+export type Backend = 'mock'|'diffusers'|'diffusers_t2v'|'diffusers_i2v'|'local_open_video'|'external'|'comfyui'|'wan'|'cogvideox'|'hunyuan'|'ltx';
+export interface GenerateRequest { prompt:string; backend:Backend; duration:number; fps:number; seed?:number; negative_prompt?:string; aspect_ratio:string; resolution:string; camera_motion?:string; quality_preset?:'draft'|'balanced'|'quality'|'short_drama'; }
