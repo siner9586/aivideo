@@ -5,6 +5,8 @@ __pycache__/
 node_modules/
 .next/
 dist/
+
+# Runtime data and generated media
 data/outputs/*.mp4
 data/uploads/*
 data/logs/*
@@ -15,4 +17,28 @@ data/feedback/*.json
 !data/logs/.gitkeep
 !data/tasks/.gitkeep
 !data/feedback/.gitkeep
+
+# Real AI model weights must stay outside Git history.
+# Use scripts/download_model_weights.py to populate these folders locally.
+models/**
+weights/**
+checkpoints/**
+*.ckpt
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.gguf
+*.ggml
+*.npz
+*.tar
+*.tar.gz
+*.zip
+*.7z
+!models/.gitkeep
+!weights/.gitkeep
+!checkpoints/.gitkeep
+!config/model_weights.example.json
+
 .pytest_cache/
