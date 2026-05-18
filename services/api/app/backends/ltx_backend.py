@@ -1,11 +1,9 @@
-"""LTX backend adapter placeholder with explicit-configuration fallback."""
+"""LTX local open-source video backend."""
 from __future__ import annotations
-import os
-from app.backends.mock_backend import MockVideoBackend
+from app.backends.local_open_video_backend import LocalOpenVideoBackend
 
-class LTXBackend(MockVideoBackend):
+class LTXBackend(LocalOpenVideoBackend):
     name = 'ltx'
-    def validate(self) -> tuple[bool, str]:
-        model_path = os.getenv('LTX_MODEL_PATH') or os.getenv('MODEL_PATH')
-        if not model_path: return False, 'ltx model path is not configured; mock fallback will be used.'
-        return True, 'ltx model path configured: ' + model_path
+    family = 'ltx'
+    def __init__(self) -> None:
+        super().__init__(family='ltx')
