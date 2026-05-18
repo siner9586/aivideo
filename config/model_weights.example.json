@@ -1,0 +1,45 @@
+{
+  "models_root": "models",
+  "models": {
+    "wan_t2v_1_3b": {
+      "backend": "wan",
+      "provider": "huggingface",
+      "repo_id": "Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
+      "local_dir": "models/wan/Wan2.1-T2V-1.3B-Diffusers",
+      "env_path_key": "WAN_MODEL_PATH",
+      "env_id_key": "WAN_MODEL_ID",
+      "recommended_for": "text-to-video short-drama drafts and local cinematic experiments",
+      "license_note": "Check and accept the upstream model license before downloading or commercial use. Do not redistribute weights through this repository."
+    },
+    "ltx_video": {
+      "backend": "ltx",
+      "provider": "huggingface",
+      "repo_id": "Lightricks/LTX-Video",
+      "local_dir": "models/ltx/LTX-Video",
+      "env_path_key": "LTX_MODEL_PATH",
+      "env_id_key": "LTX_MODEL_ID",
+      "recommended_for": "fast local text-to-video / image-to-video experiments when supported by installed diffusers version",
+      "license_note": "Check and accept the upstream model license before downloading or commercial use. Do not redistribute weights through this repository."
+    },
+    "cogvideox_5b": {
+      "backend": "cogvideox",
+      "provider": "huggingface",
+      "repo_id": "THUDM/CogVideoX-5b",
+      "local_dir": "models/cogvideox/CogVideoX-5b",
+      "env_path_key": "COGVIDEOX_MODEL_PATH",
+      "env_id_key": "COGVIDEOX_MODEL_ID",
+      "recommended_for": "higher-quality local video generation on GPU machines with enough VRAM",
+      "license_note": "Check and accept the upstream model license before downloading or commercial use. Do not redistribute weights through this repository."
+    },
+    "hunyuan_video": {
+      "backend": "hunyuan",
+      "provider": "huggingface",
+      "repo_id": "tencent/HunyuanVideo",
+      "local_dir": "models/hunyuan/HunyuanVideo",
+      "env_path_key": "HUNYUAN_MODEL_PATH",
+      "env_id_key": "HUNYUAN_MODEL_ID",
+      "recommended_for": "local high-quality video generation when the model and dependencies are installed",
+      "license_note": "Check and accept the upstream model license before downloading or commercial use. Do not redistribute weights through this repository."
+    }
+  }
+}
