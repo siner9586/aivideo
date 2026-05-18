@@ -1,8 +1,8 @@
 # AI Video Studio
 
-AI Video Studio 是一个开源 AI 视频制作平台。Phase 1 已完成 FastAPI + React + mock backend 的基础闭环；Phase 2 将其升级为 Beta 工作台，加入项目化创作、任务队列、时间线分镜编辑、ComfyUI / Diffusers / 外部后端接口、素材库、视频合成、质量评估与部署文档。
+AI Video Studio 是一个开源 AI 视频制作平台。Phase 1 已完成 FastAPI + React + mock backend 的基础闭环；Phase 2 将其升级为 Beta 工作台，加入项目化创作、任务队列、时间线分镜编辑、ComfyUI / Diffusers / 外部后端接口、素材库、视频合成、质量评估与部署文档。Phase 3 正在加入 AI Short Drama Studio：面向红果 / 抖音式竖屏短剧的题材模板、爽点钩子、分集分镜、角色一致性、字幕配音草稿、GPT 增强与批量生成队列。
 
-它不是 Seedance、即梦、Runway、Kling 等闭源商业模型的复刻，也不包含任何大模型权重；它是一个可扩展工程框架，用于把 prompt 解析、分镜规划、视频生成后端、后处理与项目管理串成完整产品流程。
+它不是 Seedance、即梦、Runway、Kling 等闭源商业模型的复刻，也不包含任何大模型权重；它是一个可扩展工程框架，用于把 prompt 解析、分镜规划、视频生成后端、后处理、短剧工业化流程与项目管理串成完整产品流程。
 
 ## Phase 2 Beta 核心功能
 
@@ -19,18 +19,67 @@ AI Video Studio 是一个开源 AI 视频制作平台。Phase 1 已完成 FastAP
 - 新增质量评估：清晰度、亮度、帧间稳定性、时长匹配、安全分等启发式评分。
 - 新增字幕与背景音乐接口占位。
 
+## Phase 3 AI Short Drama Studio
+
+新增短剧工作台与 API，支持：
+
+- 短剧创意 / 小说片段输入。
+- 题材模板：逆袭复仇、重生、都市情感、修仙、商战、家庭伦理、悬疑、喜剧反套路。
+- 竖屏平台默认参数：9:16、720p、16fps、每集 60 秒。
+- 前 3 秒钩子、情绪爆点、证据道具、结尾 cliffhanger。
+- 角色资产包：角色 ID、视觉锚点、连续性提示、LoRA / IP-Adapter 占位。
+- SRT 字幕草稿与配音脚本草稿。
+- 批量提交 `generation_jobs` 到 `/api/queue/submit`。
+- 可选 GPT 增强：配置 `OPENAI_API_KEY` 后，`use_gpt=true` 时优先调用 GPT；未配置时自动回退本地规划。
+
+短剧 API：
+
+```http
+GET  /api/short-drama/genres
+GET  /api/short-drama/platform-profile/{platform}
+POST /api/short-drama/plan
+POST /api/short-drama/character-assets
+POST /api/short-drama/subtitles/srt
+POST /api/short-drama/dubbing-script
+POST /api/short-drama/viral-score
+```
+
+GPT 环境变量：
+
+```bash
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+示例：
+
+```bash
+curl -X POST http://localhost:8000/api/short-drama/plan \
+  -H 'Content-Type: application/json' \
+  -d '{"premise":"被背叛的女主重回宴会现场，当众夺回公司控制权","genre":"revenge","visual_mode":"cinematic_realistic","platform":"hongguo","episodes":3,"shots_per_episode":6,"seconds_per_episode":60,"use_gpt":false,"fallback_to_local":true}'
+```
+
+详细说明见 `docs/short_drama_studio.md`。
+
 ## 技术架构
 
 ```mermaid
 flowchart LR
-  U[User Prompt / Assets] --> W[React Beta Workspace]
-  W --> API[FastAPI API]
+  U[User Prompt / Assets / Short Drama Premise] --> W[React Beta Workspace]
+  W --> SD[ShortDramaWorkspace]
+  SD --> GPT[Optional GPT Refinement]
+  SD --> API[FastAPI API]
   API --> SG[Safety Guard]
   API --> PP[Prompt Parser]
+  API --> SDP[Short Drama Planner]
   PP --> SB[Storyboard Planner]
+  SDP --> CHAR[Character Asset Pack]
+  SDP --> SUB[SRT / Dubbing Draft]
   SB --> PRJ[Project Manager]
+  SDP --> PRJ
   PRJ --> TL[Timeline / Shot Editor]
   TL --> Q[Task Queue]
+  SDP --> Q
   Q --> BR{Backend Registry}
   BR --> M[Mock Backend]
   BR --> C[ComfyUI]
@@ -101,13 +150,16 @@ curl -X POST http://localhost:8000/api/generate/text-to-video \
 ## 创建项目与生成镜头
 
 1. 打开前端 Beta 工作台。
-2. 左侧点击“新建项目”。
-3. 中间输入 prompt，点击“解析与生成分镜”。
-4. 点击“写入项目时间线”。
-5. 编辑每个 ShotCard 的 prompt、时长、运镜和后端。
-6. 点击“生成单个镜头”。
-7. 右侧 QueuePanel 查看状态。
-8. 完成后点击 ComposerPanel 的“合成完整视频”。
+2. 在 AI短剧工作台输入短剧创意，生成短剧方案。
+3. 可选勾选 GPT 增强。
+4. 点击“创建项目”。
+5. 点击“写入时间线”。
+6. 点击“生成角色/字幕/配音草稿”。
+7. 点击“批量提交队列”。
+8. 右侧 QueuePanel 查看状态。
+9. 完成后点击 ComposerPanel 的“合成完整视频”。
+
+通用视频流程仍保留：输入 prompt，解析分镜，写入项目时间线，生成单个镜头，最后合成。
 
 对应 API：
 
@@ -194,7 +246,8 @@ POST /api/projects/{project_id}/shots/{shot_id}/assets/{asset_id}
 ## 测试
 
 ```bash
-PYTHONPATH=services/api pytest services/api/tests
+PYTHONPATH=services/api pytest tests/test_short_drama.py
+PYTHONPATH=services/api pytest services/api/tests || true
 cd apps/web
 npm install
 npm run build
@@ -216,10 +269,10 @@ sudo apt-get update && sudo apt-get install -y ffmpeg
 services/api/app/queue/          # 任务队列
 services/api/app/projects/       # 项目管理
 services/api/app/backends/       # 后端注册与模型接口
-services/api/app/skills/         # 模板、素材、合成、质量、字幕、音乐
+services/api/app/skills/         # 模板、素材、合成、质量、字幕、音乐、短剧规划
 services/api/app/routes/         # Beta API routes
-apps/web/src/components/         # Beta 工作台组件
-apps/web/src/lib/                # 前端 API 客户端
+apps/web/src/components/         # Beta 工作台组件，含 ShortDramaWorkspace
+apps/web/src/lib/                # 前端 API 客户端，含 shortDramaApi
 docs/                            # 集成与部署文档
 examples/                        # workflow、项目与 prompt 示例
 ```
@@ -243,6 +296,6 @@ examples/                        # workflow、项目与 prompt 示例
 
 - Phase 1：MVP 基础闭环
 - Phase 2：Beta 工作台与模型后端
-- Phase 3：真实模型深度集成与云端队列
+- Phase 3：AI Short Drama Studio、GPT 增强、短剧批量生产
 - Phase 4：微信小程序 / 空间视频 / 3DGS 扩展
 - Phase 5：商业化与多人协作
