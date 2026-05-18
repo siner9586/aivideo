@@ -1,4 +1,4 @@
-"""Backend registry for mock, ComfyUI, Diffusers and future model adapters."""
+"""Backend registry for mock, ComfyUI, Diffusers and local open video adapters."""
 from __future__ import annotations
 import os
 from typing import Dict
@@ -32,6 +32,7 @@ def build_default_registry() -> BackendRegistry:
     from app.backends.diffusers_i2v_backend import DiffusersImageToVideoBackend
     from app.backends.comfyui_backend import ComfyUIBackend
     from app.backends.external_api_backend import ExternalApiBackend
+    from app.backends.local_open_video_backend import LocalOpenVideoBackend
     from app.backends.wan_backend import WanBackend
     from app.backends.cogvideox_backend import CogVideoXBackend
     from app.backends.hunyuan_backend import HunyuanBackend
@@ -40,6 +41,7 @@ def build_default_registry() -> BackendRegistry:
     registry.register_backend('diffusers', DiffusersTextToVideoBackend())
     registry.register_backend('diffusers_t2v', DiffusersTextToVideoBackend())
     registry.register_backend('diffusers_i2v', DiffusersImageToVideoBackend())
+    registry.register_backend('local_open_video', LocalOpenVideoBackend())
     registry.register_backend('comfyui', ComfyUIBackend())
     registry.register_backend('external', ExternalApiBackend())
     registry.register_backend('wan', WanBackend())
