@@ -1,4 +1,4 @@
-.PHONY: setup dev api web test demo models-list models-wan models-ltx models-cogvideox models-hunyuan
+.PHONY: setup dev api web test demo models-list models-wan models-ltx models-cogvideox models-hunyuan lfs-check
 setup:
 	python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
 	cd apps/web && npm install || true
@@ -24,3 +24,5 @@ models-cogvideox:
 	python scripts/download_model_weights.py --model cogvideox_5b
 models-hunyuan:
 	python scripts/download_model_weights.py --model hunyuan_video
+lfs-check:
+	python scripts/check_lfs_pointers.py
