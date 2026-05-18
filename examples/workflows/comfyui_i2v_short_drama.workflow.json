@@ -1,0 +1,23 @@
+{
+  "_placeholder": true,
+  "name": "comfyui_i2v_short_drama.workflow.json",
+  "status": "REPLACE_BEFORE_USE",
+  "message": "This is not a runnable ComfyUI workflow. Replace this file with a real ComfyUI API-format I2V workflow exported from your local ComfyUI after the workflow has been tested successfully.",
+  "required_titles": [
+    "INPUT_IMAGE",
+    "POSITIVE_PROMPT",
+    "NEGATIVE_PROMPT",
+    "SEED",
+    "SIZE",
+    "FRAME_COUNT",
+    "FPS",
+    "GUIDANCE",
+    "OUTPUT_VIDEO"
+  ],
+  "export_steps": [
+    "Open ComfyUI and build a tested image-to-video workflow.",
+    "Rename key nodes to the required titles above.",
+    "Use Save (API Format).",
+    "Overwrite examples/workflows/comfyui_i2v_short_drama.workflow.json with the exported API-format JSON."
+  ]
+}
