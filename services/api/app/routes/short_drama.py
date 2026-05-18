@@ -7,11 +7,10 @@ job prompts that can be sent to the existing queue/generation backends.
 """
 from __future__ import annotations
 
-from typing import Literal
-
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
+from app.skills.gpt_short_drama_adapter import enhance_short_drama_with_gpt
 from app.skills.short_drama_planner import (
     GENRE_PRESETS,
     VisualMode,
@@ -30,6 +29,8 @@ class ShortDramaPlanRequest(BaseModel):
     episodes: int = Field(3, ge=1, le=24)
     shots_per_episode: int = Field(6, ge=4, le=10)
     seconds_per_episode: float | None = Field(None, ge=12, le=180)
+    use_gpt: bool = Field(False, description="Use optional GPT refinement when OPENAI_API_KEY is configured.")
+    fallback_to_local: bool = Field(True, description="Fall back to deterministic local planner when GPT is unavailable.")
 
 
 class ViralScoreRequest(BaseModel):
@@ -63,8 +64,12 @@ def create_short_drama_plan(body: ShortDramaPlanRequest) -> dict[str, object]:
     - episode beats and cliffhangers
     - shot-level director prompts
     - batch generation jobs compatible with the current generation pipeline
+
+    When `use_gpt=true`, this endpoint tries an optional GPT refinement first.
+    If GPT is unavailable and `fallback_to_local=true`, it returns the local
+    deterministic plan with a `gpt_warning` field instead of failing.
     """
-    return plan_short_drama(
+    local_plan = plan_short_drama(
         premise=body.premise,
         genre=body.genre,
         visual_mode=body.visual_mode,
@@ -73,6 +78,28 @@ def create_short_drama_plan(body: ShortDramaPlanRequest) -> dict[str, object]:
         shots_per_episode=body.shots_per_episode,
         seconds_per_episode=body.seconds_per_episode,
     )
+    if not body.use_gpt:
+        local_plan["provider"] = "local"
+        return local_plan
+    try:
+        gpt_plan = enhance_short_drama_with_gpt(
+            premise=body.premise,
+            genre=body.genre,
+            visual_mode=body.visual_mode,
+            platform=body.platform,
+            episodes=body.episodes,
+            shots_per_episode=body.shots_per_episode,
+        )
+        gpt_plan.setdefault("platform_profile", local_plan.get("platform_profile"))
+        gpt_plan.setdefault("negative_prompt", local_plan.get("negative_prompt"))
+        gpt_plan.setdefault("production_notes", local_plan.get("production_notes"))
+        return gpt_plan
+    except Exception as exc:
+        if not body.fallback_to_local:
+            raise
+        local_plan["provider"] = "local_fallback"
+        local_plan["gpt_warning"] = str(exc)
+        return local_plan
 
 
 @router.post("/viral-score")
