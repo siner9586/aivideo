@@ -26,6 +26,36 @@ TEMPLATES: list[PromptTemplate] = [
     PromptTemplate(template_id='commerce', category='commerce', title='Commerce product demo', description='Product feature short video.', base_prompt='Create a product demo video about: {idea}. Show opening, details, usage scenario and visualized benefits without exaggerated claims.'),
     PromptTemplate(template_id='paper_project_viz', category='academic', title='Academic project visualization', description='Paper, mechanism and roadmap visualization.', base_prompt='Create an academic project visualization video about: {idea}. Use white background, clear nodes, restrained arrows and layered structure.'),
     PromptTemplate(template_id='wechat_space', category='mini_program_space', title='Mobile space showcase', description='3D space card, store or exhibition view.', base_prompt='Create a mobile-friendly space showcase about: {idea}. Use realistic walkthrough, clear navigation path and highlighted points of interest.', suggested_aspect_ratio='9:16'),
+    PromptTemplate(
+        template_id='oriental_future_tiger_rose_loop',
+        category='chinese_style',
+        title='Oriental future tiger and rose seamless loop',
+        description='Text-free oriental futurism loop: a calm tiger gently smelling a luminous rose in a future Chinese courtyard.',
+        base_prompt=(
+            'Create a seamless looping high-end oriental futurism cinematic animation about: {idea}. '
+            'No human face, no human body, no readable Chinese or English text, no title, no seal, no watermark, no logo, no symbolic bagua diagram, no readable information. '
+            'The central subject is an elegant eastern tiger resting quietly in a Chinese classical courtyard transformed into a future technology space. '
+            'The tiger is calm, not attacking, not roaring, not hunting; it lowers its head gently toward a blooming luminous rose and softly smells the fragrance. '
+            'Show realistic fur, subtle breathing in the chest and shoulder, tiny whisker motion, occasional ear movement, and calm observant eyes. '
+            'The tiger stripes contain extremely fine gold and purple-gold energy filaments, naturally blending ancient cloud thunder motifs, Huiwen geometry and nano-circuitry, pulsing faintly with the breathing rhythm. '
+            'The rose glows softly with pale pink, rose red, crimson, purple and warm gold gradients, with translucent petals, gentle swaying, slow petal drift, fragrance-like flow lines and delicate particles. '
+            'The environment blends pavilion, moon gate, flying eaves, corridor, scholar rocks, pine branches, mirror water, jade steps, screens, mist and distant mountains with dark metal, translucent jade, crystal, optical fiber texture and restrained gilded structures. '
+            'Use stable central-axis composition, balanced sides, layered depth and Chinese landscape atmosphere. '
+            'Upper southern space carries subtle nine-purple Li-fire symbolism through purple-red dawn glow, warm golden halo, abstract phoenix-feather light, red-jade lantern warmth and nine barely perceptible warm light points, never showing the number 9. '
+            'Lower northern space contains quiet mirror water; left eastern side has pine and jade-green vitality; right western side has moon-white stone steps and pale-gold crystal details. '
+            'Camera movement is a very slow push-in or almost imperceptible orbit, with smooth parallax and no cuts. '
+            'The loop is anchored by tiger breathing, rose motion, petals, particles, water ripples, mist and background glow, with invisible first-frame and last-frame continuity. '
+            'Lighting is cinematic, layered, light but not dazzling, warm but not dry, stillness with power, softness with hidden edge, realistic fur shadows, translucent petals and subtle volumetric mist.'
+        ),
+        negative_prompt=(
+            'human face, human body, portrait, cartoon, chibi, children illustration, horror, brutal hunting, roar, attack, blood, gore, ruin, mech battle, cheap cyberpunk, dense neon signs, readable text, Chinese text, English text, title, subtitle, seal, watermark, logo, symbol, QR code, bagua diagram, talisman, religious ritual, creepy occult, over-mysticism, cluttered composition, low resolution, flickering noise, fast camera movement, abrupt cut, visible loop break, overexposure, oversaturation, harsh contrast, cheap glow outline, dirty lens flare, distorted tiger anatomy, extra limbs, deformed face, plastic fur, artificial petals'
+        ),
+        suggested_duration=12,
+        suggested_aspect_ratio='16:9',
+        suggested_camera_motion='slow_push_in',
+        suggested_style='oriental futurism, cinematic realistic, seamless loop',
+        safety_notes='Original non-human animal/fantasy scene. Do not add readable text, logos, symbols, watermarks, people, gore, hunting or ritual imagery.'
+    ),
 ]
 
 def list_templates(category: str | None = None) -> list[PromptTemplate]:
