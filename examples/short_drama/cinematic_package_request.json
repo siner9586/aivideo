@@ -1,0 +1,15 @@
+{
+  "premise": "被背叛的女主重回宴会现场，当众夺回公司控制权，反派以为她只是弃子，下一秒董事长亲自向她递交任命书",
+  "genre": "revenge",
+  "visual_mode": "cinematic_realistic",
+  "platform": "hongguo",
+  "target_platform": "hongguo",
+  "episodes": 3,
+  "shots_per_episode": 6,
+  "seconds_per_episode": 60,
+  "use_gpt": true,
+  "fallback_to_local": true,
+  "render_quality": "upload_ready",
+  "backend": "comfyui",
+  "submit_to_queue": false
+}
