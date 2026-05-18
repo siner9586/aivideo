@@ -1,6 +1,8 @@
 # 东方未来主义循环视频：心有猛虎，细嗅蔷薇
 
-本文件为 AI Video Studio 的高质感循环视频任务包，用于制作一段约 3 分钟、由 10–15 秒基础循环无缝延展而成的东方未来主义动画视频。
+本文件是 AI Video Studio 的高质量循环视频任务包，用于制作一段约 3 分钟、由 10–15 秒高质量基础循环无缝延展而成的东方未来主义动画视频。
+
+> 质量原则：不要把 CPU mock 或程序化预览当作最终片。正式成片应先由真实视频生成模型产出高质感 10–15 秒母版，再用仓库脚本无损倾向地延展到 180 秒。
 
 ## 1. 核心目标
 
@@ -13,17 +15,19 @@
 
 最终成片应像一幅会呼吸的东方未来意境图：安静、强大、温柔、明亮，兼具中国传统神韵与科技想象力。
 
-## 2. 推荐视频规格
+## 2. 高质量成片规格
 
-| 项目 | 建议值 |
+| 项目 | 高质量建议 |
 |---|---|
 | 最终时长 | 180 秒 |
-| 基础循环 | 12 秒，重复 15 次 |
-| 帧率 | 24 fps 或 30 fps |
+| 基础循环母版 | 12 秒，必须首尾自然衔接 |
+| 帧率 | 30 fps；电影感可 24 fps |
 | 比例 | 16:9；动态壁纸可另出 9:16 |
-| 分辨率 | 1920×1080 起步；正式版建议 4K |
+| 母版分辨率 | 1920×1080 起步；优先 4K |
+| 最终分辨率 | 3840×2160 优先；空间不足时 1920×1080 |
 | 镜头 | 单镜头慢推或极轻微环绕，禁止快速切换 |
 | 循环锚点 | 虎的呼吸、胡须、蔷薇摆动、池水涟漪、光粒流动、霞光明灭 |
+| 禁止项 | 字幕、片头、片尾、水印、logo、印章、标题、任何可读文字 |
 
 ## 3. Master Prompt
 
@@ -49,38 +53,109 @@ Style: oriental futurism, believable surrealism, premium digital art, cinematic 
 
 human face, human body, portrait, cartoon, chibi, children illustration, horror, brutal hunting, roar, attack, blood, gore, ruin, mech battle, cheap cyberpunk, dense neon signs, readable text, Chinese text, English text, title, subtitle, seal, watermark, logo, symbol, QR code, bagua diagram, talisman, religious ritual, creepy occult, over-mysticism, cluttered composition, low resolution, flickering noise, fast camera movement, abrupt cut, visible loop break, overexposure, oversaturation, harsh contrast, cheap glow outline, dirty lens flare, distorted tiger anatomy, extra limbs, deformed face, plastic fur, artificial petals.
 
-## 5. 推荐生成流程
+## 5. 高质量推荐流程
 
-### A. 正式高质感路线
+### Step 1：生成 12 秒高质量无缝循环母版
 
-1. 用上方 Master Prompt 生成 12 秒基础循环。优先使用支持视频循环、首尾帧控制或参考帧一致性的后端，例如 Seedance、即梦、Runway、Kling、ComfyUI 视频工作流、Wan / CogVideoX / Hunyuan / LTX 等。
-2. 若平台不支持 180 秒，先产出 12 秒无缝循环段，再在 AI Video Studio 的后处理/合成链路中重复 15 次。
-3. 使用质量评估面板重点检查：闪烁、循环断点、虎纹漂移、毛发破碎、花瓣跳帧、背景文字/符号误生成。
-4. 导出时关闭字幕、片头、片尾、logo、水印或任何文字层。
-
-### B. 仓库内 CPU-only 概念预览路线
-
-使用 `scripts/render_oriental_future_tiger_rose_loop.py` 生成无文字的程序化概念预览：
-
-```bash
-python scripts/render_oriental_future_tiger_rose_loop.py --seconds 180 --loop-seconds 12 --fps 24 --resolution 1280x720
-```
-
-输出：
+优先使用真实视频模型或 ComfyUI 视频工作流，不建议用 mock。关键设置：
 
 ```text
-data/outputs/oriental_future_tiger_rose_loop.mp4
+Duration: 12s
+FPS: 24 or 30
+Resolution: 1920x1080 minimum, 3840x2160 preferred
+Camera: slow_push_in or subtle_orbit
+Loop: enabled / seamless / first-last frame consistent
+Text / watermark / logo: disabled
+Prompt adherence: high
+Motion strength: low to medium-low
+Temporal consistency: high
 ```
 
-该脚本用于本地预览构图、节奏、循环锚点和颜色关系，不替代真实视频生成模型的毛发、花瓣与电影级写实能力。
+若模型支持首尾帧：
 
-## 6. 质量检查清单
+1. 先生成一张 4K 主视觉静帧。
+2. 将同一张静帧同时作为 first frame 与 last frame。
+3. 中间只做轻微呼吸、花瓣、粒子、水波、雾气与极慢镜头运动。
+4. 这样最容易得到无缝循环。
+
+### Step 2：质检 12 秒母版
+
+重点检查：
+
+- 虎的身体、眼睛、毛发、条纹是否稳定。
+- 蔷薇花瓣是否破碎或跳变。
+- 是否误生成文字、水印、logo、印章、符号、数字或图腾。
+- 首尾帧光线、粒子、花瓣、水波、雾气是否能自然接上。
+- 是否过曝、过饱和、廉价霓虹、赛博噪声过重。
+
+### Step 3：用仓库脚本高质量延展到 3 分钟
+
+将高质量母版放入：
+
+```text
+data/assets/oriental_future_tiger_rose_12s_master.mp4
+```
+
+生成 4K 高质量 180 秒版本：
+
+```bash
+python scripts/extend_seamless_loop_hq.py \
+  data/assets/oriental_future_tiger_rose_12s_master.mp4 \
+  --output data/outputs/oriental_future_tiger_rose_180s_4k_hq.mp4 \
+  --duration 180 \
+  --fps 30 \
+  --width 3840 \
+  --crf 14 \
+  --preset slow
+```
+
+生成 1080p 高质量版本：
+
+```bash
+python scripts/extend_seamless_loop_hq.py \
+  data/assets/oriental_future_tiger_rose_12s_master.mp4 \
+  --output data/outputs/oriental_future_tiger_rose_180s_1080p_hq.mp4 \
+  --duration 180 \
+  --fps 30 \
+  --width 1920 \
+  --crf 14 \
+  --preset slow
+```
+
+说明：`--crf 12–16` 属于高质量范围，数值越低文件越大。`--preset veryslow` 质量/压缩率更好，但耗时更长。
+
+### Step 4：可选高质量后处理
+
+如需要更细腻，可在外部工具中做：
+
+- Topaz Video AI / DaVinci Resolve：降噪、锐化、4K 放大、帧稳定。
+- FFmpeg：轻微锐化、色彩空间规范化、码率控制。
+- ComfyUI：视频超分、去闪烁、帧间一致性增强。
+
+不要添加字幕、片头、片尾、logo、水印或任何文字层。
+
+## 6. 仅用于构图预览的 CPU 脚本
+
+仓库里的 `scripts/render_oriental_future_tiger_rose_loop.py` 只用于快速预览构图、色彩和循环节奏，不作为最终高质量成片。确需预览时可运行：
+
+```bash
+python scripts/render_oriental_future_tiger_rose_loop.py \
+  --seconds 12 \
+  --loop-seconds 12 \
+  --fps 24 \
+  --resolution 1920x1080 \
+  --output data/outputs/oriental_future_tiger_rose_preview_12s.mp4
+```
+
+## 7. 质量检查清单
 
 - [ ] 没有任何中英文文字、标题、印章、水印、logo、二维码或可读信息。
 - [ ] 没有人头像或人物全身。
 - [ ] 猛虎安静伏踞，不攻击、不咆哮、不捕猎。
+- [ ] 毛发、虎纹、眼睛、鼻尖气流、胡须、耳朵动作稳定可信。
 - [ ] 蔷薇具备轻柔生命感、微光与香气流线。
 - [ ] 九紫离火元素自然隐喻化，不出现数字 9 或直白图腾。
 - [ ] 镜头连续、缓慢、稳定，无突兀切换。
 - [ ] 12 秒基础段首尾衔接自然，可重复至 3 分钟。
 - [ ] 色彩高级、清透、低噪声、不过曝、不过饱和。
+- [ ] 最终 180 秒成片不应出现明显重复顿挫或压缩块。
