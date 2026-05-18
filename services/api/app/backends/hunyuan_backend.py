@@ -1,11 +1,9 @@
-"""Hunyuan backend adapter placeholder with explicit-configuration fallback."""
+"""HunyuanVideo local open-source video backend."""
 from __future__ import annotations
-import os
-from app.backends.mock_backend import MockVideoBackend
+from app.backends.local_open_video_backend import LocalOpenVideoBackend
 
-class HunyuanBackend(MockVideoBackend):
+class HunyuanBackend(LocalOpenVideoBackend):
     name = 'hunyuan'
-    def validate(self) -> tuple[bool, str]:
-        model_path = os.getenv('HUNYUAN_MODEL_PATH') or os.getenv('MODEL_PATH')
-        if not model_path: return False, 'hunyuan model path is not configured; mock fallback will be used.'
-        return True, 'hunyuan model path configured: ' + model_path
+    family = 'hunyuan'
+    def __init__(self) -> None:
+        super().__init__(family='hunyuan')
