@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 RiskLevel = Literal['low','medium','high','blocked']
 BackendName = Literal['mock','diffusers','diffusers_t2v','diffusers_i2v','local_open_video','external','comfyui','wan','cogvideox','hunyuan','ltx']
+QualityPreset = Literal['draft','balanced','quality','short_drama']
 
 class SafetyReport(BaseModel):
     risk_level: RiskLevel = 'low'
@@ -63,6 +64,7 @@ class TextToVideoRequest(BaseModel):
     aspect_ratio: str = '16:9'
     resolution: str = '720p'
     camera_motion: str | None = None
+    quality_preset: QualityPreset = 'short_drama'
 
 class ImageToVideoRequest(TextToVideoRequest):
     image_path: str
