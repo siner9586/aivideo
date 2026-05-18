@@ -1,11 +1,9 @@
-"""CogVideoX backend adapter placeholder with explicit-configuration fallback."""
+"""CogVideoX local open-source video backend."""
 from __future__ import annotations
-import os
-from app.backends.mock_backend import MockVideoBackend
+from app.backends.local_open_video_backend import LocalOpenVideoBackend
 
-class CogVideoXBackend(MockVideoBackend):
+class CogVideoXBackend(LocalOpenVideoBackend):
     name = 'cogvideox'
-    def validate(self) -> tuple[bool, str]:
-        model_path = os.getenv('COGVIDEOX_MODEL_PATH') or os.getenv('MODEL_PATH')
-        if not model_path: return False, 'cogvideox model path is not configured; mock fallback will be used.'
-        return True, 'cogvideox model path configured: ' + model_path
+    family = 'cogvideox'
+    def __init__(self) -> None:
+        super().__init__(family='cogvideox')
