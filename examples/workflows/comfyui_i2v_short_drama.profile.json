@@ -1,0 +1,87 @@
+{
+  "name": "comfyui_i2v_short_drama",
+  "description": "Stable image-to-video workflow for vertical short-drama generation with MP4 export.",
+  "mode": "image_to_video",
+  "backend": "comfyui",
+  "workflow_path": "examples/workflows/comfyui_i2v_short_drama.workflow.json",
+  "required_custom_nodes": [
+    "ComfyUI-VideoHelperSuite",
+    "Your-I2V-Model-Wrapper"
+  ],
+  "recommended_defaults": {
+    "aspect_ratio": "9:16",
+    "resolution": "720p",
+    "width": 720,
+    "height": 1280,
+    "fps": 16,
+    "num_frames": 65,
+    "duration_seconds": 4,
+    "seed": 42,
+    "guidance_scale": 6.5,
+    "quality_preset": "short_drama"
+  },
+  "injection_targets": {
+    "input_image": {
+      "node_title": "INPUT_IMAGE",
+      "input_name": "image"
+    },
+    "last_frame_image": {
+      "node_title": "LAST_FRAME_IMAGE",
+      "input_name": "image",
+      "optional": true
+    },
+    "positive_prompt": {
+      "node_title": "POSITIVE_PROMPT",
+      "input_name": "text"
+    },
+    "negative_prompt": {
+      "node_title": "NEGATIVE_PROMPT",
+      "input_name": "text"
+    },
+    "seed": {
+      "node_title": "SEED",
+      "input_name": "seed"
+    },
+    "width": {
+      "node_title": "SIZE",
+      "input_name": "width"
+    },
+    "height": {
+      "node_title": "SIZE",
+      "input_name": "height"
+    },
+    "num_frames": {
+      "node_title": "FRAME_COUNT",
+      "input_name": "frames"
+    },
+    "fps": {
+      "node_title": "FPS",
+      "input_name": "fps"
+    },
+    "guidance_scale": {
+      "node_title": "GUIDANCE",
+      "input_name": "cfg"
+    },
+    "output_prefix": {
+      "node_title": "OUTPUT_VIDEO",
+      "input_name": "filename_prefix"
+    }
+  },
+  "output_contract": {
+    "node_title": "OUTPUT_VIDEO",
+    "expected_format": "mp4",
+    "video_return_strategy": "latest_file"
+  },
+  "validation": {
+    "must_have_titles": [
+      "INPUT_IMAGE",
+      "POSITIVE_PROMPT",
+      "NEGATIVE_PROMPT",
+      "SEED",
+      "SIZE",
+      "FRAME_COUNT",
+      "FPS",
+      "OUTPUT_VIDEO"
+    ]
+  }
+}
