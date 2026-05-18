@@ -47,4 +47,7 @@ export const shortDramaApi={
   plan:(payload:ShortDramaPlanRequest)=>json<ShortDramaPlan>('/api/short-drama/plan',{method:'POST',body:JSON.stringify(payload)}),
   viralScore:(payload:any)=>json<any>('/api/short-drama/viral-score',{method:'POST',body:JSON.stringify(payload)}),
   platformProfile:(platform:string)=>json<any>(`/api/short-drama/platform-profile/${platform}`),
+  characterAssets:(plan:ShortDramaPlan,project_id?:string)=>json<any>('/api/short-drama/character-assets',{method:'POST',body:JSON.stringify({plan,project_id})}),
+  subtitles:(plan:ShortDramaPlan)=>json<any>('/api/short-drama/subtitles/srt',{method:'POST',body:JSON.stringify({plan})}),
+  dubbingScript:(plan:ShortDramaPlan)=>json<any>('/api/short-drama/dubbing-script',{method:'POST',body:JSON.stringify({plan})}),
 };
