@@ -1,9 +1,9 @@
 """Local open-source video model backend.
 
-This adapter is designed to solve the real-video-quality path without paid
-external APIs. It runs local/open-weight Diffusers-compatible video models such
-as LTX-Video, CogVideoX, HunyuanVideo and Wan when the required packages and
-weights are installed.
+This adapter solves the real-video-quality path without paid external APIs. It
+runs local/open-weight Diffusers-compatible video models such as LTX-Video,
+CogVideoX, HunyuanVideo and Wan when the required packages and weights are
+installed.
 
 It intentionally does not bundle model weights. Configure a local model path or
 Hugging Face model id through environment variables, then run on a machine with
@@ -77,7 +77,6 @@ def _safe_torch_dtype(torch: Any) -> Any:
     if dtype == "bf16":
         return torch.bfloat16
     if torch.cuda.is_available():
-        # bfloat16 is a good default on recent NVIDIA GPUs; fp16 fallback is handled by most pipelines.
         major, _minor = torch.cuda.get_device_capability(0)
         return torch.bfloat16 if major >= 8 else torch.float16
     return torch.float32
@@ -97,7 +96,7 @@ def _device(torch: Any) -> str:
 def _resolution_for_request(aspect_ratio: str, resolution: str, preset: dict[str, Any]) -> tuple[int, int]:
     requested = resolution
     allowed = str(preset.get("max_resolution") or resolution)
-    order = {"480p": 480, "720p": 720, "1080p": 1080}
+    order = {"360p": 360, "480p": 480, "720p": 720, "1080p": 1080}
     if order.get(requested, 720) > order.get(allowed, 720):
         requested = allowed
     return ratio_to_size(aspect_ratio, requested)
@@ -145,14 +144,15 @@ class LocalOpenVideoBackend(MockVideoBackend):
             return self._fallback(request, "local open video model is not configured")
         try:
             pipe = _load_pipeline(self.family, model)
-            frames = self._run_text_pipeline(pipe, request)
+            preset = self._preset(request)
+            frames = self._run_text_pipeline(pipe, request, preset)
             out = settings.output_dir / f"{uuid4().hex}.mp4"
-            _export_video(frames, str(out), self._preset(request).get("fps", request.fps))
+            _export_video(frames, str(out), preset.get("fps", request.fps))
             return VideoGenerationResult(
                 task_id=out.stem,
                 output_path=str(out),
                 preview_url=f"/api/assets/{out.stem}/video",
-                metadata={"backend": self.family, "model": model, "real_video": True},
+                metadata={"backend": self.family, "model": model, "real_video": True, "quality_preset": request.quality_preset},
                 logs=["local open-source text-to-video completed"],
             )
         except Exception as exc:
@@ -164,27 +164,25 @@ class LocalOpenVideoBackend(MockVideoBackend):
             return self._fallback(request, "local open video model is not configured", image=True)
         try:
             pipe = _load_pipeline(self.family, model, image=True)
-            frames = self._run_image_pipeline(pipe, request)
+            preset = self._preset(request)
+            frames = self._run_image_pipeline(pipe, request, preset)
             out = settings.output_dir / f"{uuid4().hex}.mp4"
-            _export_video(frames, str(out), self._preset(request).get("fps", request.fps))
+            _export_video(frames, str(out), preset.get("fps", request.fps))
             return VideoGenerationResult(
                 task_id=out.stem,
                 output_path=str(out),
                 preview_url=f"/api/assets/{out.stem}/video",
-                metadata={"backend": self.family, "model": model, "real_video": True, "mode": "image-to-video"},
+                metadata={"backend": self.family, "model": model, "real_video": True, "mode": "image-to-video", "quality_preset": request.quality_preset},
                 logs=["local open-source image-to-video completed"],
             )
         except Exception as exc:
             return self._fallback(request, f"local open image-to-video generation failed: {exc}", image=True)
 
     def _preset(self, request: TextToVideoRequest | ImageToVideoRequest) -> dict[str, Any]:
-        name = str(getattr(request, "metadata", {}) or os.getenv("LOCAL_VIDEO_QUALITY_PRESET", "short_drama"))
-        if isinstance(name, dict):
-            name = str(name.get("quality_preset", "short_drama"))
-        return QUALITY_PRESETS.get(os.getenv("LOCAL_VIDEO_QUALITY_PRESET", name), QUALITY_PRESETS["short_drama"])
+        name = os.getenv("LOCAL_VIDEO_QUALITY_PRESET") or getattr(request, "quality_preset", "short_drama") or "short_drama"
+        return QUALITY_PRESETS.get(str(name), QUALITY_PRESETS["short_drama"])
 
-    def _run_text_pipeline(self, pipe: Any, request: TextToVideoRequest) -> list[Any]:
-        preset = self._preset(request)
+    def _run_text_pipeline(self, pipe: Any, request: TextToVideoRequest, preset: dict[str, Any]) -> list[Any]:
         width, height = _resolution_for_request(request.aspect_ratio, request.resolution, preset)
         num_frames = int(os.getenv("LOCAL_VIDEO_NUM_FRAMES", request.num_frames or preset["num_frames"]))
         steps = int(os.getenv("LOCAL_VIDEO_STEPS", preset["steps"]))
@@ -207,8 +205,7 @@ class LocalOpenVideoBackend(MockVideoBackend):
         result = _call_pipeline(pipe, kwargs)
         return _frames_from_result(result)
 
-    def _run_image_pipeline(self, pipe: Any, request: ImageToVideoRequest) -> list[Any]:
-        preset = self._preset(request)
+    def _run_image_pipeline(self, pipe: Any, request: ImageToVideoRequest, preset: dict[str, Any]) -> list[Any]:
         width, height = _resolution_for_request(request.aspect_ratio, request.resolution, preset)
         num_frames = int(os.getenv("LOCAL_VIDEO_NUM_FRAMES", request.num_frames or preset["num_frames"]))
         steps = int(os.getenv("LOCAL_VIDEO_STEPS", preset["steps"]))
