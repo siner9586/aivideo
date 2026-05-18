@@ -37,9 +37,49 @@ def test_short_drama_plan_api():
     assert response.status_code == 200
     data = response.json()
     assert data["genre"] == "business"
+    assert data["provider"] == "local"
     assert data["platform_profile"]["aspect_ratio"] == "9:16"
     assert len(data["episodes"]) == 1
     assert len(data["generation_jobs"]) == 4
+
+
+def test_short_drama_gpt_fallback_api_without_key():
+    response = client.post(
+        "/api/short-drama/plan",
+        json={
+            "premise": "女主发现婚礼现场所有人都在骗她",
+            "genre": "rebirth",
+            "use_gpt": True,
+            "fallback_to_local": True,
+            "episodes": 1,
+            "shots_per_episode": 4,
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["provider"] in {"local_fallback", "openai"}
+    assert len(data["generation_jobs"]) >= 4 or len(data.get("episodes", [])) >= 1
+
+
+def test_short_drama_asset_subtitle_and_dubbing_endpoints():
+    plan = plan_short_drama(
+        premise="被背叛的女主重回宴会现场，当众夺回公司控制权",
+        genre="revenge",
+        episodes=1,
+        shots_per_episode=4,
+        seconds_per_episode=32,
+    )
+    asset_response = client.post("/api/short-drama/character-assets", json={"plan": plan, "project_id": "demo"})
+    assert asset_response.status_code == 200
+    assert len(asset_response.json()["characters"]) >= 2
+
+    subtitle_response = client.post("/api/short-drama/subtitles/srt", json={"plan": plan})
+    assert subtitle_response.status_code == 200
+    assert "-->" in subtitle_response.json()["content"]
+
+    dubbing_response = client.post("/api/short-drama/dubbing-script", json={"plan": plan})
+    assert dubbing_response.status_code == 200
+    assert len(dubbing_response.json()["episodes"]) == 1
 
 
 def test_short_drama_viral_score_api():
