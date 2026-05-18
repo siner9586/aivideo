@@ -2,7 +2,7 @@
 
 This document describes the short-drama production layer added on top of AI Video Studio.
 
-The goal is not to copy a closed commercial platform. The goal is to provide an extensible engineering framework for Hongguo/Douyin-style AI short-drama workflows: premise-to-episode planning, strong hooks, cliffhangers, vertical-video defaults, character continuity, shot-level director prompts and batch generation jobs.
+The goal is not to copy a closed commercial platform. The goal is to provide an extensible engineering framework for Hongguo/Douyin-style AI short-drama workflows: premise-to-episode planning, strong hooks, cliffhangers, vertical-video defaults, character continuity, GPT refinement, shot-level director prompts, subtitles, dubbing scripts and batch generation jobs.
 
 ## Why this layer exists
 
@@ -17,14 +17,54 @@ Short-drama production needs a different structure:
 ```text
 Premise / Novel fragment
 -> Genre template
+-> Optional GPT refinement
 -> Hook and conflict design
 -> Episode arc
 -> Character bible
 -> Director shot plan
 -> Cliffhanger
+-> Character asset pack
+-> Subtitle / dubbing draft
 -> Batch generation jobs
 -> Queue / Backend / Composer
 ```
+
+## GPT integration
+
+The backend can optionally call OpenAI's GPT-compatible Responses API through the official Python SDK.
+
+Environment variables:
+
+```bash
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Request field:
+
+```json
+{
+  "use_gpt": true,
+  "fallback_to_local": true
+}
+```
+
+When `use_gpt=true`, `/api/short-drama/plan` tries GPT first. If no key or SDK is available and `fallback_to_local=true`, it returns a deterministic local plan with `provider: local_fallback` and a `gpt_warning` field. Do not commit `.env` or any API key.
+
+## Frontend workspace
+
+The app now includes `ShortDramaWorkspace` in the main page. It supports:
+
+- premise input
+- genre selection
+- visual mode selection
+- GPT toggle
+- episode and shot count controls
+- backend selection
+- short-drama planning
+- project creation from plan
+- writing planned shots to the timeline
+- submitting all `generation_jobs` to `/api/queue/submit`
 
 ## New API endpoints
 
@@ -79,13 +119,16 @@ Example request:
   "platform": "hongguo",
   "episodes": 3,
   "shots_per_episode": 6,
-  "seconds_per_episode": 60
+  "seconds_per_episode": 60,
+  "use_gpt": false,
+  "fallback_to_local": true
 }
 ```
 
 Example output includes:
 
 - `title`
+- `provider`
 - `platform_profile`
 - `characters`
 - `episodes`
@@ -93,6 +136,54 @@ Example output includes:
 - `negative_prompt`
 - `production_notes`
 - `markdown`
+
+### Create a character asset pack
+
+```http
+POST /api/short-drama/character-assets
+```
+
+Input:
+
+```json
+{
+  "project_id": "optional_project_id",
+  "plan": { "characters": [] }
+}
+```
+
+Output includes stable character IDs, continuity prompts, empty reference image slots, LoRA slots and IP-Adapter image slots.
+
+### Create rough SRT subtitles
+
+```http
+POST /api/short-drama/subtitles/srt
+```
+
+Input:
+
+```json
+{
+  "plan": { "episodes": [] }
+}
+```
+
+Output:
+
+```json
+{
+  "format": "srt",
+  "content": "1\n00:00:00,000 --> 00:00:05,000\n..."
+}
+```
+
+### Create a dubbing script
+
+```http
+POST /api/short-drama/dubbing-script
+```
+
+Output groups lines by episode and shot. It is a placeholder script that can later be routed to CosyVoice, GPT-SoVITS, MiniMax Speech or another voice backend.
 
 ### Score short-drama virality heuristics
 
@@ -117,7 +208,7 @@ The score is a production-side checklist, not a real platform predictor.
 
 ## Production logic
 
-Each episode is decomposed into a repeatable short-drama grammar:
+Each local-planner episode is decomposed into a repeatable short-drama grammar:
 
 1. 3-second hook
 2. relationship setup
@@ -140,12 +231,22 @@ The planner generates a character bible with continuity anchors, such as:
 
 In production, these anchors should be bound to reference images, LoRA, IP-Adapter, ComfyUI workflows or external image-to-video backends.
 
+## Local verification
+
+```bash
+pip install -r requirements.txt
+PYTHONPATH=services/api pytest tests/test_short_drama.py
+cd apps/web
+npm install
+npm run build
+```
+
 ## Recommended next implementation steps
 
-1. Add a frontend `ShortDramaWorkspace` page.
-2. Add a `CharacterBiblePanel` for reference images and LoRA/IP-Adapter metadata.
-3. Add batch submission from `generation_jobs` to `/api/queue/submit`.
-4. Add subtitle and dubbing adapters for CosyVoice / GPT-SoVITS.
+1. Persist character asset packs into each project directory.
+2. Bind reference images from the asset library to individual characters.
+3. Add real CosyVoice / GPT-SoVITS / MiniMax Speech adapters.
+4. Add generated subtitle files into Composer.
 5. Add per-shot continuity quality checks after generation.
 6. Add a project export preset for vertical micro-drama delivery.
 
