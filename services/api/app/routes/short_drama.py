@@ -11,6 +11,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from app.skills.gpt_short_drama_adapter import enhance_short_drama_with_gpt
+from app.skills.short_drama_assets import build_character_asset_pack, build_dubbing_script, build_srt_from_plan
 from app.skills.short_drama_planner import (
     GENRE_PRESETS,
     VisualMode,
@@ -42,6 +43,11 @@ class ViralScoreRequest(BaseModel):
     subtitle_density: float = Field(0.55, ge=0, le=1)
 
 
+class ShortDramaPlanPayload(BaseModel):
+    plan: dict = Field(default_factory=dict)
+    project_id: str | None = None
+
+
 @router.get("/genres")
 def list_short_drama_genres() -> dict[str, object]:
     """List built-in short-drama genre presets."""
@@ -58,16 +64,9 @@ def get_platform_profile(platform: str) -> dict[str, object]:
 def create_short_drama_plan(body: ShortDramaPlanRequest) -> dict[str, object]:
     """Create a complete short-drama production package.
 
-    The result includes:
-    - title and platform defaults
-    - character bible and continuity rules
-    - episode beats and cliffhangers
-    - shot-level director prompts
-    - batch generation jobs compatible with the current generation pipeline
-
-    When `use_gpt=true`, this endpoint tries an optional GPT refinement first.
-    If GPT is unavailable and `fallback_to_local=true`, it returns the local
-    deterministic plan with a `gpt_warning` field instead of failing.
+    The result includes title, platform defaults, character bible, continuity
+    rules, episode beats, cliffhangers, shot prompts and batch generation jobs.
+    When `use_gpt=true`, this endpoint tries optional GPT refinement first.
     """
     local_plan = plan_short_drama(
         premise=body.premise,
@@ -100,6 +99,24 @@ def create_short_drama_plan(body: ShortDramaPlanRequest) -> dict[str, object]:
         local_plan["provider"] = "local_fallback"
         local_plan["gpt_warning"] = str(exc)
         return local_plan
+
+
+@router.post("/character-assets")
+def create_character_assets(body: ShortDramaPlanPayload) -> dict[str, object]:
+    """Build a model-agnostic character asset pack from a short-drama plan."""
+    return build_character_asset_pack(body.plan.get("characters") or [], body.project_id)
+
+
+@router.post("/subtitles/srt")
+def create_srt_subtitles(body: ShortDramaPlanPayload) -> dict[str, object]:
+    """Create a rough SRT subtitle draft from the plan's shots."""
+    return {"format": "srt", "content": build_srt_from_plan(body.plan)}
+
+
+@router.post("/dubbing-script")
+def create_dubbing_script(body: ShortDramaPlanPayload) -> dict[str, object]:
+    """Create a dubbing script draft grouped by episode and shot."""
+    return build_dubbing_script(body.plan)
 
 
 @router.post("/viral-score")
