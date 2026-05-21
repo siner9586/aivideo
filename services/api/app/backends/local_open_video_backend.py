@@ -103,7 +103,7 @@ def _resolution_for_request(aspect_ratio: str, resolution: str, preset: dict[str
 
 
 class LocalOpenVideoBackend(MockVideoBackend):
-    """Run local/open-weight Diffusers video models with mock fallback control."""
+    """Run local/open-weight Diffusers video models with explicit mock fallback control."""
 
     name = "local_open_video"
     family = "local_open_video"
@@ -232,8 +232,11 @@ class LocalOpenVideoBackend(MockVideoBackend):
         return _frames_from_result(result)
 
     def _fallback(self, request: TextToVideoRequest | ImageToVideoRequest, reason: str, image: bool = False) -> VideoGenerationResult:
-        if not _truthy(os.getenv("LOCAL_VIDEO_ALLOW_MOCK_FALLBACK"), True):
-            raise RuntimeError(reason)
+        if not _truthy(os.getenv("LOCAL_VIDEO_ALLOW_MOCK_FALLBACK"), False):
+            raise RuntimeError(
+                f"{reason}. Refusing to return mock video for requested real backend '{self.family}'. "
+                "Set LOCAL_VIDEO_ALLOW_MOCK_FALLBACK=1 only when you explicitly want a CPU preview."
+            )
         if image and isinstance(request, ImageToVideoRequest):
             result = super().generate_image(request.model_copy(update={"backend": "mock"}))
         else:
